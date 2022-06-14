@@ -108,7 +108,7 @@ Lpp = round((d / sin(alpha) \
     + Lk), 3)                # общая длина пути УЗС, м
 T1 = 4.85944e-4              # время распространения УЗС по потоку, с
 T2 = 4.90218e-4              # время распространения УЗС против потока, с
-dT = round(T2-T1, 9)         # разность времен распространения, с
+dT = round(T2-T1, 9)         # разность времен распространения УЗС, с
 Tsr = round((T1+T2) / 2, 9)  # среднее время распространения УЗС, с
 pl = 845.0                   # плотность нефти, кг/(м**3)
 nu = 0.05                    # динамическая вязкость, Па*с
@@ -233,7 +233,7 @@ plt.grid(True, alpha = 0.3)
 plt.xlabel('Расход, кг/с', {'fontname':'Times New Roman'}, fontweight='normal', fontsize=14)
 plt.ylabel('Относительная погрешность, %', {'fontname':'Times New Roman'}, fontweight='normal', fontsize=14)
 plt.plot(spisok_qm, dKgdin, linewidth = '5', label='Погрешность гидродинамического коэффициента')
-plt.plot(spisok_qm, ddTdin, linewidth = '5', label='Погрешность разности распространения УЗС')
+plt.plot(spisok_qm, ddTdin, linewidth = '5', label='Погрешность разности времен распространения УЗС')
 plt.legend(loc='best')
 plt.show()
 plt.show()
