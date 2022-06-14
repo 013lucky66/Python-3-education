@@ -2,7 +2,7 @@ from math import pi, log10, floor
 from random import randint
 import matplotlib.pyplot as plt
 import numpy as np
-
+# Метрологическая модель вихревого расходомера с теолм обтекания в проточной части
 
 # Задаем функции и исходные данные 
 # Функция округления по количесвту значащих цифр
@@ -32,20 +32,23 @@ def randomizer (minx, maxx, percent=10, n=48):
             i += 1
     return izmdata
 
-# Функция вычисления абсолютной погрешности результата прямого измерения
-def absol_err(x, n = 3):      # x - результат измерения, n - мин. кол. значащих цифр
+# Функция вычисления относительной погрешности результата прямого измерения вида dx / x
+def otn_err(x, n=3):   # x - результат измерения, n - мин. кол. значащих цифр
     oshibka = ''
-    if len(str(x)) < n + 1 and not str(x)[0] == '0' and not str(x).find('.') == -1:
-        k = '.' + str(n + 2 - len(str(x))) + 'f'
-        y = str(format(x, k))
-    elif len(str(x)) < n and not str(x)[0] == '0' and str(x).find('.') == -1:
-        k = '.' + str(n - len(str(x))) + 'f'
-        y = str(format(x, k))
-    elif len(str(x)) < n + 1 and str(x)[0] == '0':
-        k = '.' + str(n + 3 - len(str(x))) + 'f'
-        y = str(format(x, k))
+    if x < 1:
+        while x < 1:
+            x *= 10
+            x = round_sig(x, n)
+    if x - int(x) == 0:
+        x = int(x)
+        if len(str(x)) < n:
+            k = '.' + str(n - len(str(x))) + 'f'
+            y = str(format(x, k))
+        else:
+            y = str(x)
     else:
-        y = str(x)
+        k = '.' + str(n - 1) + 'f'
+        y = str(format(x, k))
     for i in range(len(y)):
         if y[i] != '.' and i != len(y) - 1:
             oshibka += '0'
@@ -53,7 +56,7 @@ def absol_err(x, n = 3):      # x - результат измерения, n - �
             oshibka += '.'
         else:
             oshibka += '1'
-    return float(oshibka)
+    return float(oshibka) / (round_sig(x, n))
 
 d = 0.300         # диаметр проточной части расходомера, м
 f = 150           # частота вихреобразования, Гц
@@ -88,16 +91,15 @@ if qm - int(qm) == 0:
 print('Массовый расход для начальных условий составляет: ' + str(qm) + ' кг/с')
 
 # Определяем относительную погрешность расчета массового расхода как результата косвенного измерения
-dqm = round((((absol_err(f, len(str(f))) / f)**2) + ((absol_err(pl, len(str(pl))) / pl)**2) \
-    + 9 * ((absol_err(d, 3) / d)**2) + ((absol_err(St, len(str(St))) / St)**2))**0.5, 4)
+dqm = round((((otn_err(f, len(str(f))))**2) + ((otn_err(pl, 4))**2) + 9 * ((otn_err(d, 3))**2) + \
+    ((otn_err(St, 3))**2))**0.5, 4)
 print('Относительная погрешность расчета массового расхода: ' + str(round_sig(dqm * 100, 4)) + ' %')
 
-# Строим диаграмму относительных погрешностей составляющих результирующей опгрешности
-spisok_err = [(round((absol_err(f, len(str(f))) / f) * 1e2, 4)), (round((absol_err(pl, len(str(pl))) \
-    / pl) * 1e2, 4)), (round((absol_err(d, len(str(d))) / d) * 1e2, 4)), (round((absol_err(St, \
-         len(str(St))) / St) * 1e2, 4))]
+# Строим диаграмму относительных погрешностей составляющих результирующей погрешности
+spisok_err = [round(otn_err(f, len(str(f))) * 1e2, 4), round(otn_err(pl, 4) * 1e2, 4), \
+    round(otn_err(d, 3) * 1e2, 4), round(otn_err(St, 3) * 1e2, 4)]
 nazv = ['f', 'pl', 'd', 'St']
-fig1 = plt.figure('Диаграмма погрешностей', figsize = (8, 5))
+fig1 = plt.figure('Диаграмма погрешностей вихревого расходомера', figsize = (8, 5))
 plt.grid(True, alpha = 0.3)
 plt.bar(nazv, spisok_err)
 addlabels(nazv, spisok_err)
@@ -131,7 +133,7 @@ for i in range(1, len(spisok_qm)):
     m += round(0.5 * 0.5 * (spisok_qm[i] + spisok_qm[i - 1]), 3)
 # Строим график
 t = np.linspace(0, 24, 48)
-fig2 = plt.figure('Суточная расходограмма', figsize = (10, 5))
+fig2 = plt.figure('Суточная расходограмма вихревого расходомера', figsize = (10, 5))
 plt.ylim(0, 17000)
 plt.xlim(0, 24)
 plt.grid(True, alpha = 0.3)
@@ -168,10 +170,10 @@ for element in fdin:
     errdin = 1
     Re2 = 1e4
 # Вычисляем погрешности
-dfdin = [(absol_err(s, len(str(s))) / s) * 100 for s in fdin]
-dStdin = [(absol_err(s, len(str(s))) / s) * 100 for s in Stdin]
+dfdin = [(otn_err(s, len(str(s)))) * 100 for s in fdin]
+dStdin = [(otn_err(s,3) / s) * 100 for s in Stdin]
 # Строим график
-fig3 = plt.figure('График погрешностей', figsize = (10, 5))
+fig3 = plt.figure('График погрешностей вихревого расходомера', figsize = (10, 5))
 plt.xlim(spisok_qm[0], spisok_qm[47])
 plt.ylim(0, 11)
 plt.grid(True, alpha = 0.3)
