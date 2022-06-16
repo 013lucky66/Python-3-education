@@ -171,7 +171,7 @@ for element in fdin:
     Re2 = 1e4
 # Вычисляем погрешности
 dfdin = [(otn_err(s, len(str(s)))) * 100 for s in fdin]
-dStdin = [(otn_err(s,3) / s) * 100 for s in Stdin]
+dStdin = [(otn_err(s, 3)) * 100 for s in Stdin]
 # Строим график
 fig3 = plt.figure('График погрешностей вихревого расходомера', figsize = (10, 5))
 plt.xlim(spisok_qm[0], spisok_qm[47])
@@ -179,7 +179,7 @@ plt.ylim(0, 11)
 plt.grid(True, alpha = 0.3)
 plt.xlabel('Расход, кг/с', {'fontname':'Times New Roman'}, fontweight='normal', fontsize=14)
 plt.ylabel('Относительная погрешность, %', {'fontname':'Times New Roman'}, fontweight='normal', fontsize=14)
-plt.plot(spisok_qm, dfdin, linewidth = '5', label='Погрешность детектирования вихрей')
-plt.plot(spisok_qm, dStdin, linewidth = '5', label='Погрешность определения числа Струхаля')
+plt.plot(spisok_qm, dfdin, linewidth = '3', linestyle = 'solid', label='Погрешность детектирования вихрей')
+plt.plot(spisok_qm, dStdin, linewidth = '3', linestyle = 'dashed', label='Погрешность определения числа Струхаля')
 plt.legend(loc='best')
 plt.show()
