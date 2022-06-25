@@ -1,3 +1,3 @@
-from math import pi, cos, sin
-
-print((pi / 4))
+a = 6
+b = 7
+print((3.14 / 4 * a))
